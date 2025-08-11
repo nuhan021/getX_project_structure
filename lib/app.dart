@@ -5,8 +5,8 @@ import 'package:get/get.dart';
 import 'core/bindings/controller_binder.dart';
 import 'core/utils/theme/theme.dart';
 
-class CourseOnline extends StatelessWidget {
-  const CourseOnline({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
