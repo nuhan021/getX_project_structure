@@ -6,7 +6,11 @@ import 'package:http/http.dart';
 import '../models/response_data.dart';
 
 class NetworkCaller {
-  final int timeoutDuration = 10;
+  final int timeoutDuration = 40;
+  static bool _isRefreshing = false;
+  static Completer<String?>? _refreshCompleter;
+  static int _retryCount = 0;
+  static const int _maxRetries = 3;
 
   // GET method
   Future<ResponseData> getRequest(String url, {String? token}) async {
@@ -16,7 +20,7 @@ class NetworkCaller {
       final Response response = await get(
         Uri.parse(url),
         headers: {
-          'Authorization': token.toString(),
+          'Authorization': 'Bearer ${token.toString()}',
           'Content-type': 'application/json',
         },
       ).timeout(
@@ -37,7 +41,10 @@ class NetworkCaller {
 
     try {
       final Response response = await post(Uri.parse(url),
-          headers: {'Content-type': 'application/json'},
+          headers: {
+          'Authorization': 'Bearer ${token.toString()}',
+          'Content-type': 'application/json',
+        },
           body: jsonEncode(body))
           .timeout(Duration(seconds: timeoutDuration));
       return _handleResponse(response);
@@ -53,7 +60,7 @@ class NetworkCaller {
 
     final decodedResponse = jsonDecode(response.body);
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 200 || response.statusCode == 201) {
       if (decodedResponse['success'] == true) {
         return ResponseData(
           isSuccess: true,
